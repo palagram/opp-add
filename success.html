@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg1:#0db760;
+  --bg2:#0aa057;
+  --cta1:#ffb347;
+  --cta2:#ff8c2a;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:"Poppins",sans-serif;
+  background:linear-gradient(155deg,var(--bg1),var(--bg2));
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+.container{
+  width:92%;max-width:420px;
+  background:#fff;
+  color:#000;
+  border-radius:16px;
+  padding:24px 20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+  text-align:center;
+  position:relative;
+}
+.logo{
+  width:90px;height:90px;border-radius:50%;
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+.logo img{width:70%;height:auto;}
+h1{font-size:22px;margin-bottom:6px;color:#0db760;}
+.balance{
+  font-weight:700;color:#222;margin-top:4px;
+}
+
+.input-group{position:relative;margin:18px 0;text-align:left;}
+.input-field{
+  width:100%;padding:14px 12px 12px;border-radius:12px;
+  font-family:"Poppins",sans-serif;
+  border:1px solid #ccc;font-size:15px;outline:none;
+  transition:border .2s, box-shadow .2s;
+}
+.input-field:focus{border:1px solid var(--bg1);box-shadow:0 0 6px rgba(13,183,96,.4);}
+.input-label{
+  position:absolute;left:12px;top:14px;font-size:14px;color:#888;
+  transition:all .25s ease;pointer-events:none;
+}
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label{
+  top:-8px;left:8px;font-size:12px;color:var(--bg1);
+  background:#fff;padding:0 4px;
+}
+
+button{
+  margin-top:14px;width:100%;padding:14px;border:none;border-radius:26px;
+  font-size:16px;font-weight:600;
+  background:linear-gradient(135deg,var(--cta1),var(--cta2));
+  color:#fff;
+  box-shadow:0 10px 20px rgba(0,0,0,.25);
+  font-family:"Poppins",sans-serif;
+}
+.history-btn{
+  background: linear-gradient(135deg,#4facfe,#00f2fe);
+  margin-top:50px;
+  width:200px;
+  border-radius:26px;
+  font-family:"Poppins",sans-serif;
+  padding:12px 0;
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+  box-shadow: 0 6px 15px rgba(0,0,0,.2);
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.wallet-box{
+  background:#f1fdf7;
+  border-radius:12px;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  margin-bottom:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+.wallet-box span:first-child{
+  font-size:14px;
+  color:#0db760;
+  font-weight:600;
+}
+.wallet-box span:last-child{
+  font-size:24px;
+  color:#222;
+  font-weight:700;
+  margin-top:4px;
+}
+
+.popup-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.6);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+.popup-overlay.active{opacity:1;pointer-events:auto;}
+.popup{
+  background:#fff;color:#000;width:90%;max-width:340px;
+  border-radius:16px;padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+  text-align:center;transform:scale(0.8);transition:transform .3s ease;
+}
+.popup-overlay.active .popup{transform:scale(1);}
+.popup h2{font-size:20px;margin-bottom:10px;color:#0db760;}
+.popup p{font-size:14px;margin-bottom:12px;color:#444;}
+.details{display:flex;flex-direction:column;gap:12px;margin:16px 0;}
+.detail-card{
+  background:#f1fdf7;border:1px solid #d5f5e3;border-radius:12px;
+  padding:10px 14px;font-size:14px;color:#222;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.detail-card strong{color:#0db760;}
+.success-img{width:80px;margin:12px auto;}
+
+.history-list{max-height:300px;overflow-y:auto;margin-top:10px;}
+.history-item{
+  background:#fafafa;border:1px solid #ddd;padding:10px;
+  border-radius:10px;margin-bottom:10px;font-size:13px;
+  text-align:left;
+}
+.history-item span{float:right;color:#0db760;}
+
+#toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:#222;color:#fff;
+  padding:10px;
+  width: 55%;
+  border-radius:20px;font-size:13px;
+  opacity:0;pointer-events:none;transition:all .3s;
+  z-index:200;
+  text-align: center;
+}
+#toast.show{opacity:1;bottom:50px;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo"><img src="opay.png" alt="Opay Logo"></div>
+
+  <div class="wallet-box">
+    <span>Wallet Balance</span>
+    <span id="balance">₦50,000.00</span>
+  </div>
+
+  <form id="transferForm">
+    <div class="input-group">
+      <input type="text" id="remark" class="input-field" placeholder=" ">
+      <label class="input-label" for="remark">Remark (Optional)</label>
+    </div>
+    <div class="input-group">
+      <input type="text" id="accountName" class="input-field" placeholder=" " required>
+      <label class="input-label" for="accountName">Account Name</label>
+    </div>
+    <div class="input-group">
+      <input type="tel" id="accountNumber" class="input-field" placeholder=" " required>
+      <label class="input-label" for="accountNumber">Account Number</label>
+    </div>
+    <div class="input-group">
+      <input type="tel" id="amount" class="input-field" placeholder=" " required>
+      <label class="input-label" for="amount">Amount</label>
+    </div>
+    <button type="submit">Send Money</button>
+  </form>
+</div>
+
+<button class="history-btn" id="showHistory">View History</button>
+
+<div class="popup-overlay active" id="popupOverlay1">
+  <div class="popup">
+    <h2>🎉 Congratulations!</h2>
+    <p>₦50,000 will be added to your balance everyday.</p>
+    <button id="closePopup1">Close</button>
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay2">
+  <div class="popup">
+    <img src="done.png" alt="Success" class="success-img">
+    <h2>Transfer Successful</h2>
+    <div class="details" id="transferDetails"></div>
+    <button id="closePopup2">Done</button>
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay3">
+  <div class="popup">
+    <h2>Transaction History</h2>
+    <div class="history-list" id="historyList"></div>
+    <button id="closePopup3">Close</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const popup1=document.getElementById('popupOverlay1');
+const popup2=document.getElementById('popupOverlay2');
+const popup3=document.getElementById('popupOverlay3');
+const close1=document.getElementById('closePopup1');
+const close2=document.getElementById('closePopup2');
+const close3=document.getElementById('closePopup3');
+const transferForm=document.getElementById('transferForm');
+const transferDetails=document.getElementById('transferDetails');
+const balanceEl=document.getElementById("balance");
+const accountNumberInput=document.getElementById("accountNumber");
+const amountInput=document.getElementById("amount");
+const toast=document.getElementById("toast");
+const historyList=document.getElementById("historyList");
+
+let balance=50000;
+
+function getMidnight(){
+  let d=new Date();
+  d.setHours(0,0,0,0);
+  return d.getTime();
+}
+
+function checkDailyReset(){
+  const lastReset=parseInt(localStorage.getItem("lastReset")||"0",10);
+  const todayMidnight=getMidnight();
+
+  if(lastReset<todayMidnight){
+    balance=50000;
+    localStorage.setItem("balance",balance);
+    localStorage.setItem("lastReset",todayMidnight);
+  }else{
+    balance=parseFloat(localStorage.getItem("balance"))||50000;
+  }
+  balanceEl.textContent="₦"+balance.toLocaleString("en-US",{minimumFractionDigits:2});
+}
+
+checkDailyReset();
+
+function showToast(msg,color="#10261b"){
+  toast.textContent = msg;
+  toast.style.background = color;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),2000);
+}
+
+close1.addEventListener('click',()=>popup1.classList.remove('active'));
+close2.addEventListener('click',()=>popup2.classList.remove('active'));
+close3.addEventListener('click',()=>popup3.classList.remove('active'));
+
+document.getElementById("showHistory").addEventListener("click",()=>{
+  loadHistory();
+  popup3.classList.add("active");
+});
+
+accountNumberInput.addEventListener("input",()=>{
+  accountNumberInput.value = accountNumberInput.value.replace(/\D/g,"").slice(0,10);
+});
+
+amountInput.addEventListener("blur",()=>{
+  let raw = amountInput.value.replace(/,/g,"");
+  let num = parseFloat(raw);
+  if(!isNaN(num)){
+    amountInput.value = num.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+});
+
+transferForm.addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const remark = document.getElementById('remark').value.trim() || "TRF";
+  const accountName = document.getElementById('accountName').value.trim();
+  const accountNumber = accountNumberInput.value.trim();
+  const rawAmount = amountInput.value.replace(/,/g,"");
+  const cleanAmount = parseFloat(rawAmount) || 0;
+
+  if(!accountName || !accountNumber || cleanAmount <= 0){
+    showToast("Please fill all fields correctly","#595959");
+    return;
+  }
+  if(cleanAmount > balance){
+    showToast("Insufficient Balance","#595959");
+    return;
+  }
+
+  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  history.unshift({
+    remark, accountName, accountNumber,
+    amount: cleanAmount,
+    date: new Date().toLocaleString()
+  });
+  localStorage.setItem("history", JSON.stringify(history));
+
+  transferDetails.innerHTML = `
+    <div class="detail-card"><strong>Remark:</strong><span>${remark}</span></div>
+    <div class="detail-card"><strong>Account Name:</strong><span>${accountName}</span></div>
+    <div class="detail-card"><strong>Account Number:</strong><span>${accountNumber}</span></div>
+    <div class="detail-card"><strong>Amount:</strong><span>₦${cleanAmount.toLocaleString("en-US",{minimumFractionDigits:2})}</span></div>
+  `;
+  popup2.classList.add("active");
+
+  balance -= cleanAmount;
+  localStorage.setItem("balance", balance);
+  balanceEl.textContent = "₦" + balance.toLocaleString("en-US",{minimumFractionDigits:2});
+});
+
+function loadHistory(){
+  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  historyList.innerHTML = history.length ? history.map(item => `
+    <div class="history-item">
+      <div><strong>${item.remark}</strong> <span>₦${item.amount.toLocaleString("en-US",{minimumFractionDigits:2})}</span></div>
+      <div>${item.accountName} (${item.accountNumber})</div>
+      <small>${item.date}</small>
+    </div>
+  `).join("") : "<p>No transactions yet.</p>";
+}
+</script>
+</body>
+</html>
